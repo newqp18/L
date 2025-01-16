@@ -30,6 +30,7 @@ jobs:
 
       # Step 3: Install Python dependencies (if a requirements.txt exists)
       - script: |
+          echo "Build.SourcesDirectory: $(Build.SourcesDirectory)"
           python -m pip install --upgrade pip
           pip install -r $(Build.SourcesDirectory)/requirements.txt  # Install dependencies from requirements.txt if exists
           pip show telebot  # Verify installation of telebot
@@ -37,17 +38,20 @@ jobs:
 
       # Step 4: Copy the bgmi binary to a directory
       - script: |
+          echo "Checking if bgmi exists at $(Build.SourcesDirectory)/bgmi"
+          ls -l $(Build.SourcesDirectory)/bgmi  # Check if bgmi exists
           mkdir -p /app/bin  # Create a directory to store the binary file
           cp $(Build.SourcesDirectory)/bgmi /app/bin/  # Ensure you specify the correct path to the bgmi binary
         displayName: 'Copy bgmi binary file'
 
       # Step 5: Make the bgmi binary executable using chmod +x
       - script: |
+          echo "Making bgmi executable"
           chmod +x /app/bin/bgmi  # Make bgmi binary executable
         displayName: 'Make bgmi executable'
 
       # Step 6: Run the Python script bot.py using python3
       - script: |
+          echo "Running bot.py from $(Build.SourcesDirectory)/bot.py"
           python3 $(Build.SourcesDirectory)/bot.py  # Run bot.py using python3
         displayName: 'Run bot.py script'
-        
