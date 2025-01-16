@@ -1,0 +1,50 @@
+trigger:
+  branches:
+    include:
+      - main  # This triggers the pipeline on changes to the 'main' branch
+
+schedules:
+  - cron: "*/5 * * * *"  # This triggers the pipeline every 5 minutes
+    displayName: "Run every 5 minutes"
+    branches:
+      include:
+        - main  # Ensures the schedule runs on the 'main' branch
+
+pool:
+  vmImage: 'ubuntu-latest'  # The VM image to use for the pipeline
+
+jobs:
+  - job: BuildAndRun
+    displayName: 'Build and Run bgmi binary with bot.py'
+
+    steps:
+      - task: Checkout@1
+        displayName: 'Checkout Repository'
+
+      # Install Python and dependencies (if bot.py requires any)
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.x'
+          addToPath: true
+
+      - script: |
+          python -m pip install --upgrade pip
+          pip install telebot  # Install any required dependencies (if a requirements.txt exists)
+        displayName: 'Install Python dependencies'
+
+      # Copy the binary file (bgmi) to the appropriate directory
+      - script: |
+          mkdir -p /app/bin  # Create a directory to store the binary file (adjust the path if needed)
+          cp $(Build.SourcesDirectory)/path/to/bgmi /app/bin/  # Ensure you specify the correct path to the bgmi binary
+        displayName: 'Copy bgmi binary file'
+
+      # Make the bgmi binary executable using chmod +x
+      - script: |
+          chmod +x /app/bin/bgmi  # Make bgmi binary executable
+        displayName: 'Make bgmi executable'
+
+      # Run the Python script bot.py using python3
+      - script: |
+          python3 $(Build.SourcesDirectory)/path/to/bot.py  # Run the bot.py script with python3
+        displayName: 'Run bot.py script'
+        
