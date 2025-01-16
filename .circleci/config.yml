@@ -18,33 +18,36 @@ jobs:
     displayName: 'Build and Run bgmi binary with bot.py'
 
     steps:
+      # Step 1: Checkout the repository code
       - task: Checkout@1
         displayName: 'Checkout Repository'
 
-      # Install Python and dependencies (if bot.py requires any)
+      # Step 2: Install Python version
       - task: UsePythonVersion@0
         inputs:
           versionSpec: '3.x'
           addToPath: true
 
+      # Step 3: Install Python dependencies (if a requirements.txt exists)
       - script: |
           python -m pip install --upgrade pip
-          pip install telebot  # Install any required dependencies (if a requirements.txt exists)
+          pip install -r $(Build.SourcesDirectory)/requirements.txt  # Install dependencies from requirements.txt if exists
+          pip show telebot  # Verify installation of telebot
         displayName: 'Install Python dependencies'
 
-      # Copy the binary file (bgmi) to the appropriate directory
+      # Step 4: Copy the bgmi binary to a directory
       - script: |
-          mkdir -p /app/bin  # Create a directory to store the binary file (adjust the path if needed)
-          cp $(Build.SourcesDirectory)/path/to/bgmi /app/bin/  # Ensure you specify the correct path to the bgmi binary
+          mkdir -p /app/bin  # Create a directory to store the binary file
+          cp $(Build.SourcesDirectory)/bgmi /app/bin/  # Ensure you specify the correct path to the bgmi binary
         displayName: 'Copy bgmi binary file'
 
-      # Make the bgmi binary executable using chmod +x
+      # Step 5: Make the bgmi binary executable using chmod +x
       - script: |
           chmod +x /app/bin/bgmi  # Make bgmi binary executable
         displayName: 'Make bgmi executable'
 
-      # Run the Python script bot.py using python3
+      # Step 6: Run the Python script bot.py using python3
       - script: |
-          python3 $(Build.SourcesDirectory)/path/to/bot.py  # Run the bot.py script with python3
+          python3 $(Build.SourcesDirectory)/bot.py  # Run bot.py using python3
         displayName: 'Run bot.py script'
         
